@@ -1,9 +1,0 @@
-{
-  "domain": "ezviz_cloud",
-  "name": "Ezviz Cloud",
-  "documentation": "https://github.com/your_username/home-assistant-ezviz-cloud-component/blob/main/README.md",
-  "dependencies": [],
-  "codeowners": ["@your_username"],
-  "requirements": ["requests==2.27.1"],
-  "version": "0.0.1"
-}
