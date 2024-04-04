@@ -1,0 +1,11 @@
+{
+  "domain": "ezviz_camera",
+  "name": "EZVIZ camera",
+  "codeowners": ["@_mrxie_"],
+  "dependencies": [],
+  "documentation": "https://github.com/mrxie6666/ezviz",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/mrxie6666/ezviz/ezviz_camera",
+  "requirements": [],
+  "version": "1.0.0"
+}

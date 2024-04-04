@@ -1,0 +1,118 @@
+Home Assistant 中的 Ezviz 摄像头集成
+
+本自定义集成旨在连接 Home Assistant 与 Ezviz 摄像头，使用户能够在 Home Assistant 环境中查看摄像头的实时流和抓拍静态图像。该集成支持为多通道设备指定摄像头通道号。
+
+代码结构
+
+代码由两大部分组成：
+
+平台设置
+
+setup_platform：当集成初始化时调用此函数。它创建一个 EzvizCamera 类的实例，并将其添加到 Home Assistant 可用摄像头列表中。
+EzvizCamera 类
+
+EzvizCamera：表示 Home Assistant 中的一个 Ezviz 摄像头实例。它扩展了 Home Assistant 提供的基础 Camera 类，并实现了实现功能所需的多种方法。
+配置
+
+要使用此集成，在 configuration.yaml 文件的 camera 部分添加以下配置：
+
+yaml
+camera:
+  - platform: ezviz_camera
+    id: <您的设备序列号>
+    Appkey: <您的 Appkey>
+    Secre: <您的 Appsecret>
+    name: <摄像头名称>
+    channel: <通道号码>  # 可选，默认为 1；有效范围：1-4
+类初始化 (__init__)
+
+当 EzvizCamera 类被实例化时，执行以下任务：
+
+继承来自 Camera 基础类的属性和方法。
+提取配置参数，如设备序列号、Appkey、Appsecret、摄像头名称和通道号码。
+使用摄像头名称和设备序列号设置摄像头实体的唯一ID。
+初始化与身份验证令牌和运动状态相关的变量。
+方法
+
+身份验证
+
+get_token：使用提供的 Appkey 和 Appsecret 向 Ezviz API 请求访问令牌。成功时，将在相应类属性中存储访问令牌及其过期时间。
+令牌管理
+
+check_token_is_expired：检查当前访问令牌是否已过期或即将过期（在1秒内）。若需刷新新令牌返回 True，否则返回 False。
+图像捕获
+
+get_device_capture：使用当前访问令牌从指定摄像头通道检索静止图像。成功时返回捕获图像的 URL，否则返回 'error'。
+camera_image：由 Home Assistant 调用以从摄像头获取静止图像。首先检查是否需要刷新访问令牌，然后调用 get_device_capture。处理图像检索过程中可能发生的任何异常，并返回图像内容。
+实时流
+
+mjpeg_stream：生成摄像头的 HTTP MJPEG 流。使用访问令牌、设备序列号和指定通道号码构建流 URL。产出流 URL，以便 Home Assistant 处理流传输过程。
+属性
+
+name：返回配置的摄像头名称。
+supported_features：指定摄像头支持实时流(CameraEntityFeature.STREAM)。
+should_poll：指示摄像头实体应由 Home Assistant 定期轮询以获取更新。
+结论
+
+本自定义集成提供了将 Ezviz 摄像头接入 Home Assistant 的基本框架，支持实时流和静态图像抓拍。用户可以为多通道设备指定摄像头通道号。确保提供的 Appkey、Appsecret 和设备序列号准确无误，并监控 Home Assistant 日志以排查集成运行期间出现的任何问题。
+
+
+
+Ezviz Camera Integration for Home Assistant
+
+This custom integration enables the connection between Home Assistant and an Ezviz camera, allowing users to view live streams and capture still images from their cameras within the Home Assistant environment. The integration supports specifying a camera channel number for multi-channel devices.
+
+Code Structure
+
+The code consists of two main parts:
+
+Platform Setup
+
+setup_platform: This function is called when the integration is initialized. It creates an instance of the EzvizCamera class and adds it to Home Assistant's list of available cameras.
+EzvizCamera Class
+
+EzvizCamera: Represents an individual Ezviz camera within Home Assistant. It extends the base Camera class provided by Home Assistant and implements various methods required for proper functionality.
+Configuration
+
+To use this integration, add the following configuration under the camera section in your configuration.yaml file:
+
+yaml
+camera:
+  - platform: ezviz_camera
+    id: <YOUR_DEVICE_SERIAL>
+    Appkey: <YOUR_APPKEY>
+    Secre: <YOUR_APPSECRET>
+    name: <CAMERA_NAME>
+    channel: <CHANNEL_NUMBER>  # Optional, defaults to 1; valid range: 1-4
+Class Initialization (__init__)
+
+When the EzvizCamera class is instantiated, it performs the following tasks:
+
+Inherits properties and methods from the Camera base class.
+Extracts configuration parameters such as the device serial, app key, app secret, camera name, and channel number.
+Sets the unique ID for the camera entity using the camera name and device serial.
+Initializes variables related to authentication tokens and motion status.
+Methods
+
+Authentication
+
+get_token: Requests an access token from the Ezviz API using the provided app key and app secret. If successful, stores the access token and its expiration time in the respective class attributes.
+Token Management
+
+check_token_is_expired: Checks if the current access token has expired or is about to expire (within 1 second). Returns True if a new token is needed, False otherwise.
+Image Capture
+
+get_device_capture: Retrieves a still image from the specified camera channel using the current access token. Returns the URL of the captured image if successful, 'error' otherwise.
+camera_image: Called by Home Assistant to fetch a still image from the camera. First checks if the access token needs to be refreshed, then calls get_device_capture. Handles any exceptions that may occur during the image retrieval process and returns the image content.
+Live Stream
+
+mjpeg_stream: Generates an HTTP MJPEG stream from the camera. Constructs the stream URL using the access token, device serial, and specified channel number. Yields the stream URL so that Home Assistant can handle the streaming process.
+Properties
+
+name: Returns the configured name of the camera.
+supported_features: Specifies that the camera supports live streaming (CameraEntityFeature.STREAM).
+should_poll: Indicates that the camera entity should be polled periodically by Home Assistant for updates.
+Conclusion
+
+This custom integration provides a basic framework for integrating an Ezviz camera into Home Assistant, supporting both live streaming and still image capture. Users can specify a camera channel number to interact with multi-channel devices. Ensure the provided app key, app secret, and device serial are accurate, and monitor Home Assistant logs for any issues during the integration's operation.
+
